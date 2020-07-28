@@ -1,0 +1,48 @@
+version: "2"
+
+services:
+    mysql:
+        image: mysql
+        restart: always
+        ports:
+            - "3307:3306"
+        environment:
+            - MYSQL_USER=azkaban
+            - MYSQL_PASSWORD=azkaban
+            - MYSQL_DATABASE=azkaban
+            - MYSQL_ROOT_PASSWORD=azkaban
+
+
+    executor1:
+        build: ./azkaban_exec
+        restart: "no" 
+        tty: true
+        container_name: azkaban_executor_1
+        links:
+            - mysql
+
+    # executor2:
+    #     build: ./azkaban_exec
+    #     restart: always
+    #     container_name: azkaban_executor_2
+    #     links:
+    #         - mariadb    
+
+    # executor3:
+    #     build: ./azkaban_exec
+    #     restart: always
+    #     container_name: azkaban_executor_3
+    #     links:
+    #         - mariadb    
+
+    webserver:
+        build: ./azkaban_web
+        restart: always
+        ports:
+           - "8443:8443"
+        depends_on:
+           - mysql
+           - executor1
+        links:
+           - mysql
+           - executor1
